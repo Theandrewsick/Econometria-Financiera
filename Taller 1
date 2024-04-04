@@ -1,1 +1,29 @@
+library(quantmod)
+library(PerformanceAnalytics)
+library(ggplot2)
+
+
+#Definimos el nombre de las variables Para poder obtener los datos historicos
+market_symbol <- "^GSPC"
+asset_symbol <- "BLK"
+symbols <- c("BLK", "^GSPC") 
+
+# Obtener datos históricos de precios para los últimos 500 días hábiles
+getSymbols(market_symbol, src = "yahoo", from = "2022-11-20")
+getSymbols(asset_symbol, src = "yahoo", from = "2022-11-20")
+
+# Verificar la longitud de los vectores de precios
+print(length(market_symbol))
+print(length(asset_symbol))
+
+# Visualizar los últimos datos
+tail(GSPC)
+tail(BLK)
+
+# Verificar si hay exactamente 500 observaciones diarias para cada activo
+if (length(market_symbol) == 500 && length(asset_prices) == 500) {
+  print("Se encontraron exactamente 500 observaciones diarias para cada activo.")
+} else {
+  print("No se encontraron exactamente 500 observaciones diarias para cada activo.")
+}
 
