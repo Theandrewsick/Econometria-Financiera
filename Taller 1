@@ -6,15 +6,10 @@ library(ggplot2)
 #Definimos el nombre de las variables Para poder obtener los datos historicos
 market_symbol <- "^GSPC"
 asset_symbol <- "BLK"
-symbols <- c("BLK", "^GSPC") 
 
 # Obtener datos históricos de precios para los últimos 500 días hábiles
 getSymbols(market_symbol, src = "yahoo", from = "2022-11-20")
 getSymbols(asset_symbol, src = "yahoo", from = "2022-11-20")
-
-# Verificar la longitud de los vectores de precios
-print(length(market_symbol))
-print(length(asset_symbol))
 
 # Visualizar los últimos datos
 tail(GSPC)
@@ -26,4 +21,34 @@ if (length(market_symbol) == 500 && length(asset_prices) == 500) {
 } else {
   print("No se encontraron exactamente 500 observaciones diarias para cada activo.")
 }
+
+
+#Medidas de centralidad, solo para Blackroc, falta pasa SP500
+# Extraer los precios de cierre ajustados
+precios_cierre <- Cl(get(market_symbol))
+
+# Calcular la media y la mediana
+media <- mean(precios_cierre)
+mediana <- median(precios_cierre)
+
+# Calcular la media móvil simple (SMA) de 50 días y 200 días
+sma_50 <- SMA(precios_cierre, n = 50)
+sma_200 <- SMA(precios_cierre, n = 200)
+
+# Calcular el rango de precios (máximo y mínimo)
+rango_precio <- max(precios_cierre) - min(precios_cierre)
+
+# Calcular la volatilidad (desviación estándar)
+volatilidad <- sd(precios_cierre)
+
+# Imprimir las medidas de centralidad y otras métricas
+print(paste("Media:", media))
+print(paste("Mediana:", mediana))
+print(paste("SMA de 50 días:", tail(sma_50, 1)))
+print(paste("SMA de 200 días:", tail(sma_200, 1)))
+print(paste("Rango de precios:", rango_precio))
+print(paste("Volatilidad:", volatilidad))
+
+
+
 
