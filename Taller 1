@@ -199,6 +199,77 @@ qqline(blk_r, col="black",lwd=2)
 qqnorm(sp500_r,col="blue")
 qqline(sp500_r, col="black",lwd=2)
 
+# Medidas de posicion
+# Se calcula resumen de cierre ajustado, y cuantiles
+resumen <- summary(precios_cierre_ajustadosgspc)
+resumen <- summary(precios_cierre_ajustadosblk)
+cuantiles <- quantile(precios_cierre_ajustadosgspc)
+cuantiles <- quantile(precios_cierre_ajustadosblk)
+
+# Calcula percentiles específicos
+percentil_10gspc <- quantile(precios_cierre_ajustadosgspc, 0.1)
+percentil_10blk <- quantile(precios_cierre_ajustadosblk, 0.1)
+
+percentil_90gspc <- quantile(precios_cierre_ajustadosgspc, 0.9)
+percentil_90blk <- quantile(precios_cierre_ajustadosblk, 0.9)
+
+# Calcula el rango intercuartílico (IQR)
+IQRgspc <- IQR(precios_cierre_ajustadosgspc)
+IQRblk <- IQR(precios_cierre_ajustadosblk)
+
+# Calcula el rango
+rangogspc <- max(precios_cierre_ajustadosgspc) - min(precios_cierre_ajustadosgspc)
+rangoblk <- max(precios_cierre_ajustadosblk) - min(precios_cierre_ajustadosblk)
+
+# Calcula el coeficiente de variación
+coeficiente_variaciongspc <- desviacion_estandargspc / mean(precios_cierre_ajustadosgspc)
+coeficiente_variacionblk <- desviacion_estandarblk / mean(precios_cierre_ajustadosblk)
+
+
+# Muestra los resultados
+print(resumen)
+print(cuantiles)
+print(percentil_10gspc)
+print(percentil_10blk)
+print(percentil_90gspc)
+print(percentil_90blk)
+print(IQRgspc)
+print(IQRblk)
+
+
+# Medidas de forma
+# Calcula la asimetría (skewness) y la kurtosis
+asimetriagspc <- skewness(precios_cierre_ajustadosgspc)
+asimetriablk <- skewness(precios_cierre_ajustadosblk)
+kurtgspc <- kurtosis(precios_cierre_ajustadosgspc)
+kurtblk <- kurtosis(precios_cierre_ajustadosblk)
+
+# Calcula la curtosis excedente
+curtosis_excedentegspc <- kurtosis(precios_cierre_ajustadosgspc) - 3
+curtosis_excedenteblk <- kurtosis(precios_cierre_ajustadosblk) - 3
+
+# Calcula la entropía
+# Función para calcular la entropía
+entropy <- function(data) {
+  # Calcula la frecuencia relativa de cada valor
+  probs <- table(data) / length(data)  
+  # Calcula la entropía
+  entropy <- -sum(probs * log2(probs))  
+  return(entropy)
+}
+
+entropiagspc <- entropy(precios_cierre_ajustadosgspc)
+entropiablk <- entropy(precios_cierre_ajustadosblk)
+
+# Muestra los resultados
+print(paste("Asimetría:", asimetriagspc))
+print(paste("Asimetría:", asimetriablk))
+print(paste("Kurtosis:", kurtgspc))
+print(paste("Kurtosis:", kurtblk))
+print(paste("Curtosis Excedente:", curtosis_excedentegspc))
+print(paste("Curtosis Excedente:", curtosis_excedenteblk))
+print(paste("Entropía:", entropiagspc))
+print(paste("Entropía:", entropiablk))
 
 
 
