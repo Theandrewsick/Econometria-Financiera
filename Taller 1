@@ -1,3 +1,4 @@
+install.packages("quantmod", "performanceanalytics")
 library(quantmod)
 library(PerformanceAnalytics)
 library(ggplot2)
@@ -23,31 +24,182 @@ if (length(market_symbol) == 500 && length(asset_prices) == 500) {
 }
 
 
-#Medidas de centralidad, solo para Blackroc, falta pasa SP500
+#Medidas de centralidad
 # Extraer los precios de cierre ajustados
-precios_cierre <- Cl(get(market_symbol))
+precios_cierre_ajustados <- Cl(GSPC)
+precios_cierre_ajustados <- Cl(BLK)
 
-# Calcular la media y la mediana
-media <- mean(precios_cierre)
-mediana <- median(precios_cierre)
+# Calcula la media
+mediagspc <- mean(Cl(GSPC))
+mediablk <- mean(Cl(GSPC))
 
-# Calcular la media móvil simple (SMA) de 50 días y 200 días
-sma_50 <- SMA(precios_cierre, n = 50)
-sma_200 <- SMA(precios_cierre, n = 200)
+# Calcula la mediana
+medianagspc <- median(Cl(GSPC))
+medianablk <- median(Cl(BLK))
 
-# Calcular el rango de precios (máximo y mínimo)
-rango_precio <- max(precios_cierre) - min(precios_cierre)
+# Calcula la moda
+modagspc <- names(sort(table(Cl(GSPC)), decreasing = TRUE))[1]
+modablk <- names(sort(table(Cl(BLK)), decreasing = TRUE))[2]
 
-# Calcular la volatilidad (desviación estándar)
-volatilidad <- sd(precios_cierre)
+# Calcula el percentil 25
+q25gspc <- quantile(Cl(GSPC), probs = 0.25)
+q25blk <- quantile(Cl(BLK), probs = 0.25)
 
-# Imprimir las medidas de centralidad y otras métricas
-print(paste("Media:", media))
-print(paste("Mediana:", mediana))
-print(paste("SMA de 50 días:", tail(sma_50, 1)))
-print(paste("SMA de 200 días:", tail(sma_200, 1)))
-print(paste("Rango de precios:", rango_precio))
-print(paste("Volatilidad:", volatilidad))
+# Calcula el percentil 75 
+q75gspc <- quantile(Cl(GSPC), probs = 0.75)
+q75blk <- quantile(Cl(BLK), probs = 0.75)
+
+# Calcula el rango
+rangogspc <- max(Cl(GSPC)) - min(Cl(GSPC))
+rangoblk <- max(Cl(BLK)) - min(Cl(BLK))
+
+# Calcula la varianza
+varianzagspc <- var(Cl(GSPC))
+varianzablk <- var(Cl(BLK))
+
+# Calcula la desviación estándar
+desviacion_estandargspc <- sd(Cl(GSPC))
+desviacion_estandarblk <- sd(Cl(BLK))
+
+# Calcula la asimetría
+asimetriagspc <- skewness(Cl(GSPC))
+asimetriablk <- skewness(Cl(BLK))
+
+# Calcula la kurtosis
+kurtosisgspc <- kurtosis(Cl(GSPC))
+kurtosisblk <- kurtosis(Cl(BLK))
+
+# Muestra los resultados
+print(paste("Media:", mediagspc))
+print(paste("Media:", mediablk))
+print(paste("Mediana:", medianagspc))
+print(paste("Mediana:", medianablk))
+print(paste("Moda:", modagspc))
+print(paste("Moda:", modablk))
+print(paste("Percentil 25 (Q1):", q25gspc))
+print(paste("Percentil 25 (Q1):", q25blk))
+print(paste("Percentil 25 (Q1):", q75gspc))
+print(paste("Percentil 75 (Q3):", q75blk))
+print(paste("Rango:", rangogspc))
+print(paste("Rango:", rangoblk))
+print(paste("Varianza:", varianzagspc))
+print(paste("Varianza:", varianzablk))
+print(paste("Desviación Estándar:", desviacion_estandargspc))
+print(paste("Desviación Estándar:", desviacion_estandarblk))
+print(paste("Asimetría:", asimetriagspc))
+print(paste("Asimetría:", asimetriablk))
+print(paste("Kurtosis:", kurtosisgspc))
+print(paste("Kurtosis:", kurtosisblk))
+
+
+#Medidas de disprecion 
+# Calcula la varianza
+varianzagspc <- var(Cl(GSPC))
+varianzablk <- var(Cl(BLK))
+
+# Calcula la desviación estándar
+desviacion_estandargspc <- sd(Cl(GSPC))
+desviacion_estandarblk <- sd(Cl(BLK))
+
+# Muestra los resultados
+print(paste("Varianza:", varianzagspc))
+print(paste("Varianza:", varianzablk))
+print(paste("Desviación Estándar:", desviacion_estandargspc))
+print(paste("Desviación Estándar:", desviacion_estandarblk))
+
+# Para calcular los datos para el indice de Sharpe
+
+aligned_data <- merge(Cl(BLK), Cl(GSPC))
+
+# Graficos
+# Gráfico de Apple (BLK)
+plot(aligned_data[,1], main="BlackRock", ylab="Precio", col="#87B6D9")
+
+# Gráfico de Google (GSPC)
+plot(aligned_data[,2], main="SP500", ylab="Precio", col="#F47F4A")
+
+# Construcción de un modelo ARIMA para BLK y GSPC
+blk<-aligned_data[,1]
+sp500<-aligned_data[,2]
+
+# Prueba de estacionariedad
+adf.test(blk)
+adf.test(sp500)
+
+# Aplico la diferenciación y elimino el primer valor NA
+blk_r <- diff(log(blk))[-1]
+sp500_r <- diff(log(sp500))[-2]
+
+# Otra forma de cálculo de retorno
+blk2_r=Return.calculate(blk,method="compound")
+blk2_r=blk2_r[-1,]
+dygraph(blk2_r)
+
+sp5002_r=Return.calculate(sp500,method="compound")
+sp5002_r=sp5002_r[-1,]
+dygraph(sp5002_r)
+
+# Análisis exploratorio
+
+m = mean(blk_r)
+s = sd(blk_r)
+
+m1 = mean(sp500_r)       Errooooor
+s1 = sd(sp500_r)
+
+
+# Indice de Sharpe de referencia (BLK)
+sharpe_blk<-m/s
+# Indice de Sharpe de referencia (GSPC)
+sharpe_sp500<-m1/s1      Errooooor
+
+# Medición del Sharpe para blk
+blk<-aligned_data[,1]
+blk_r <- diff(log(blk))[-1]
+
+m_g<-mean(blk_r)
+s_g<-sd(blk_r)
+sharpe_blk<-m_g/s_g
+
+# Medición del Sharpe para gspc
+gspc<-aligned_data[,2]
+gspc_r <- diff(log(gspc))[-1]
+
+m_a<-mean(gspc_r)
+s_a<-sd(gspc_r)
+sharpe_gspc<-m_a/s_a
+
+#Histograma de retornos para blk_r
+hist(blk_r,nclass = 100, prob=T, main="Histograma de retornos")
+curve(dnorm(x,mean=m,sd=s),from=-0.20, to=0.08, add=T, 
+      col="blue",lwd = 3) 
+
+# Histograma de retornos para sp500_r
+hist(sp500_r,nclass = 100, prob=T, main="Histograma de retornos")
+curve(dnorm(x,mean=m,sd=s),from=-0.20, to=0.08, add=T, 
+      col="blue",lwd = 3)           
+
+# Gráfico de densidad del rendimiento para blk_r 
+plot(density(blk_r),main="Retorno de distribucion empirica blk",
+     lwd=2)
+curve(dnorm(x,mean=m,sd=s),from=-0.1, to=0.1, add=T, col="blue",
+      lwd = 3) 
+
+# Gráfico de densidad del rendimiento para sp500_r 
+plot(density(sp500_r),main="Retorno de distribucion empirica sp500",
+     lwd=2)                  Eroooor
+curve(dnorm(x,mean=m,sd=s),from=-0.1, to=0.1, add=T, col="blue",
+      lwd = 3) 
+
+# Gráfica de normalidad de los retornos
+qqnorm(blk_r,col="blue")
+qqline(blk_r, col="black",lwd=2)
+
+# Gráfica de normalidad de los retornos
+qqnorm(sp500_r,col="blue")
+qqline(sp500_r, col="black",lwd=2)
+
+
 
 
 
